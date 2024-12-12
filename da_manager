@@ -1,0 +1,127 @@
+// src/main.kt
+
+import java.util.*
+
+data class Task(
+    val id: Int,
+    var title: String,
+    var description: String,
+    var isCompleted: Boolean = false
+)
+
+class TaskManager {
+    private val tasks = mutableListOf<Task>()
+    private var nextId = 1
+
+    // Add a new task
+    fun addTask(title: String, description: String) {
+        val task = Task(id = nextId++, title = title, description = description)
+        tasks.add(task)
+        println("Task added successfully: $task")
+    }
+
+    // List all tasks
+    fun listTasks() {
+        if (tasks.isEmpty()) {
+            println("No tasks available.")
+            return
+        }
+
+        println("\nTasks:")
+        tasks.forEach { task ->
+            val status = if (task.isCompleted) "[✓]" else "[ ]"
+            println("${task.id}. $status ${task.title} - ${task.description}")
+        }
+    }
+
+    // Update a task
+    fun updateTask(id: Int, title: String?, description: String?, isCompleted: Boolean?) {
+        val task = tasks.find { it.id == id }
+        if (task == null) {
+            println("Task with ID $id not found.")
+            return
+        }
+
+        title?.let { task.title = it }
+        description?.let { task.description = it }
+        isCompleted?.let { task.isCompleted = it }
+        println("Task updated: $task")
+    }
+
+    // Delete a task
+    fun deleteTask(id: Int) {
+        val task = tasks.find { it.id == id }
+        if (task == null) {
+            println("Task with ID $id not found.")
+            return
+        }
+
+        tasks.remove(task)
+        println("Task deleted: $task")
+    }
+}
+
+fun main() {
+    val scanner = Scanner(System.`in`)
+    val taskManager = TaskManager()
+
+    println("Welcome to Task Manager!")
+    while (true) {
+        println("\nChoose an option:")
+        println("1. Add Task")
+        println("2. List Tasks")
+        println("3. Update Task")
+        println("4. Delete Task")
+        println("5. Exit")
+        print("Enter your choice: ")
+
+        when (scanner.nextLine().trim()) {
+            "1" -> {
+                print("Enter task title: ")
+                val title = scanner.nextLine()
+                print("Enter task description: ")
+                val description = scanner.nextLine()
+                taskManager.addTask(title, description)
+            }
+
+            "2" -> taskManager.listTasks()
+
+            "3" -> {
+                print("Enter task ID to update: ")
+                val id = scanner.nextLine().toIntOrNull()
+                if (id == null) {
+                    println("Invalid ID.")
+                    continue
+                }
+                print("Enter new title (leave blank to keep current): ")
+                val title = scanner.nextLine().takeIf { it.isNotBlank() }
+                print("Enter new description (leave blank to keep current): ")
+                val description = scanner.nextLine().takeIf { it.isNotBlank() }
+                print("Mark as completed? (yes/no/leave blank): ")
+                val isCompleted = when (scanner.nextLine().lowercase()) {
+                    "yes" -> true
+                    "no" -> false
+                    else -> null
+                }
+                taskManager.updateTask(id, title, description, isCompleted)
+            }
+
+            "4" -> {
+                print("Enter task ID to delete: ")
+                val id = scanner.nextLine().toIntOrNull()
+                if (id == null) {
+                    println("Invalid ID.")
+                    continue
+                }
+                taskManager.deleteTask(id)
+            }
+
+            "5" -> {
+                println("Exiting Task Manager. Goodbye!")
+                break
+            }
+
+            else -> println("Invalid choice. Please try again.")
+        }
+    }
+}
